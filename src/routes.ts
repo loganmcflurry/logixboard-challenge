@@ -1,4 +1,4 @@
 export enum AppRoute {
-    DASHBOARD = '/dashboard',
-    SHIPMENTS = '/shipments',
+  DASHBOARD = '/dashboard',
+  SHIPMENTS = '/shipments',
 }
