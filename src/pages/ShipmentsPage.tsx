@@ -51,6 +51,7 @@ const useStyles = makeStyles({
   grid: {
     marginInline: 16,
     height: '100%',
+    minHeight: '180px', // set minHeight to always show at least one row, prevent pagination underflow when too small
   },
   loader: {
     margin: 'auto',
@@ -85,7 +86,7 @@ export const ShipmentsPage: React.FC = () => {
           className={classes.grid}
           rows={fetchShipmentsResult.shipments}
           columns={COLUMNS}
-          pageSize={20}
+          autoPageSize
           disableSelectionOnClick
         />
       );
