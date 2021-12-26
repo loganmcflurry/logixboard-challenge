@@ -41,10 +41,14 @@ const COLUMNS: GridColDef[] = [
 const useStyles = makeStyles({
   grid: {
     width: '100%',
+    padding: '10px 20px',
   },
   card: {
     width: '100%',
     height: '100%',
+    '& > hr': {
+      margin: '0px 20px',
+    },
   },
   data: {
     width: '100%',
@@ -113,7 +117,7 @@ export const DashboardPage: React.FC = () => {
         if (dateIdx > -1) {
           upcomingShipments[upcomingDateStrings[dateIdx]].push(shipment);
         }
-        return;
+        return upcomingDateStrings[dateIdx];
       });
 
       component = (
@@ -124,10 +128,12 @@ export const DashboardPage: React.FC = () => {
               <Grid item xs={6} md={4} lg={3}>
                 <Card className={classes.card}>
                   <CardHeader title={date}></CardHeader>
+                  <hr />
                   <CardContent>
                     <p>
-                      {upcomingShipments[date].length || 'No'} shipment
-                      {upcomingShipments[date].length !== 1 ? 's' : ''} arriving
+                      {upcomingShipments[date].length
+                        ? null
+                        : 'No shipments arriving'}
                     </p>
                     {upcomingShipments[date].length ? (
                       <DataGrid
