@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement } from 'react';
 import {
   Box,
   Card,
@@ -10,7 +10,7 @@ import {
 } from '@material-ui/core';
 import { DataGrid, GridColDef } from '@material-ui/data-grid';
 import Loader from 'react-loader-spinner';
-import { fetchShipments, FetchShipmentsResult } from '../data/fetch-shipments';
+import { FetchShipmentsResult, LoadingResult } from '../data/fetch-shipments';
 import { Shipment } from '../data/Shipment';
 import { format } from 'date-fns';
 
@@ -61,13 +61,6 @@ const useStyles = makeStyles({
   },
 });
 
-type LoadingResult = {
-  status: 'LOADING';
-};
-const INITIAL_RESULT: LoadingResult = {
-  status: 'LOADING',
-};
-
 /**
  * Returns a list of MM/dd/yy date strings for a given number of upcoming days including today
  * @param numDays number of days to fetch
@@ -90,19 +83,14 @@ const getUpcomingDateStrings = (numDays: number): string[] => {
 /**
  * The DashboardPage component shows a high-level overview of the next N days worth of shipments (default to a week view)
  */
-export const DashboardPage: React.FC = () => {
+export const DashboardPage: React.FC<{
+  data: FetchShipmentsResult | LoadingResult;
+}> = ({ children, data }) => {
   const classes = useStyles();
   const theme = useTheme();
 
-  const [fetchShipmentsResult, setFetchShipmentsResult] = useState<
-    FetchShipmentsResult | LoadingResult
-  >(INITIAL_RESULT);
-  useEffect(() => {
-    fetchShipments().then((result) => setFetchShipmentsResult(result));
-  }, []);
-
   let component: ReactElement;
-  switch (fetchShipmentsResult.status) {
+  switch (data.status) {
     case 'SUCCESS':
       // construct empty map of next x number of days
       const upcomingDateStrings = getUpcomingDateStrings(NUM_DAYS_PREVIEW);
@@ -112,7 +100,7 @@ export const DashboardPage: React.FC = () => {
       }
 
       // for each shipment, if its estimatedArrival is in our list of upcoming dates, add it to the corresponding map entry
-      fetchShipmentsResult.shipments.map((shipment) => {
+      data.shipments.map((shipment) => {
         const dateIdx = upcomingDateStrings.indexOf(shipment.estimatedArrival);
         if (dateIdx > -1) {
           upcomingShipments[upcomingDateStrings[dateIdx]].push(shipment);

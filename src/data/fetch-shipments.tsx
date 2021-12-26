@@ -12,6 +12,10 @@ type SuccessResult = {
   shipments: Shipment[];
 };
 
+export type LoadingResult = {
+  status: 'LOADING';
+};
+
 export type FetchShipmentsResult = ErrorResult | SuccessResult;
 
 // To make your life easier, we'll adjust the dates to be more current
