@@ -1,4 +1,5 @@
 import { createTheme, ThemeProvider } from '@material-ui/core';
+import { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Redirect,
@@ -8,6 +9,11 @@ import {
 
 import './App.css';
 import { Navbar } from './components/Navbar';
+import {
+  FetchShipmentsResult,
+  fetchShipments,
+  LoadingResult,
+} from './data/fetch-shipments';
 import { DashboardPage } from './pages/DashboardPage';
 import { ShipmentsPage } from './pages/ShipmentsPage';
 
@@ -19,7 +25,19 @@ const theme = createTheme({
   },
 });
 
+const INITIAL_RESULT: LoadingResult = {
+  status: 'LOADING',
+};
+
 export const App = () => {
+  // fetch data when the app loads
+  const [fetchShipmentsResult, setFetchShipmentsResult] = useState<
+    FetchShipmentsResult | LoadingResult
+  >(INITIAL_RESULT);
+  useEffect(() => {
+    fetchShipments().then((result) => setFetchShipmentsResult(result));
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <Router>
@@ -29,10 +47,10 @@ export const App = () => {
             <Redirect to="/dashboard" />
           </Route>
           <Route path="/dashboard">
-            <DashboardPage />
+            <DashboardPage data={fetchShipmentsResult} />
           </Route>
           <Route path="/shipments">
-            <ShipmentsPage />
+            <ShipmentsPage data={fetchShipmentsResult} />
           </Route>
         </Switch>
       </Router>

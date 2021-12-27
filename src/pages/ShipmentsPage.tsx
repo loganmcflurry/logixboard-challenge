@@ -1,8 +1,8 @@
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement } from 'react';
 import { Box, makeStyles, useTheme } from '@material-ui/core';
 import { DataGrid, GridColDef } from '@material-ui/data-grid';
 import Loader from 'react-loader-spinner';
-import { fetchShipments, FetchShipmentsResult } from '../data/fetch-shipments';
+import { FetchShipmentsResult, LoadingResult } from '../data/fetch-shipments';
 
 const COLUMNS: GridColDef[] = [
   {
@@ -60,31 +60,19 @@ const useStyles = makeStyles({
   },
 });
 
-type LoadingResult = {
-  status: 'LOADING';
-};
-const INITIAL_RESULT: LoadingResult = {
-  status: 'LOADING',
-};
-
-export const ShipmentsPage: React.FC = () => {
+export const ShipmentsPage: React.FC<{
+  data: FetchShipmentsResult | LoadingResult;
+}> = ({ children, data }) => {
   const classes = useStyles();
   const theme = useTheme();
 
-  const [fetchShipmentsResult, setFetchShipmentsResult] = useState<
-    FetchShipmentsResult | LoadingResult
-  >(INITIAL_RESULT);
-  useEffect(() => {
-    fetchShipments().then((result) => setFetchShipmentsResult(result));
-  }, []);
-
   let component: ReactElement;
-  switch (fetchShipmentsResult.status) {
+  switch (data.status) {
     case 'SUCCESS':
       component = (
         <DataGrid
           className={classes.grid}
-          rows={fetchShipmentsResult.shipments}
+          rows={data.shipments}
           columns={COLUMNS}
           autoPageSize
           disableSelectionOnClick
