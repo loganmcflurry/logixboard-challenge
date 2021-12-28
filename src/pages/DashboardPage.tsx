@@ -50,7 +50,7 @@ const useStyles = makeStyles({
       margin: '0px 20px',
     },
   },
-  data: {
+  table: {
     width: '100%',
     height: '100%',
   },
@@ -108,6 +108,7 @@ export const DashboardPage: React.FC<{
         return upcomingDateStrings[dateIdx];
       });
 
+      // render
       component = (
         <Grid container spacing={3} className={classes.grid}>
           {upcomingDateStrings
@@ -118,21 +119,18 @@ export const DashboardPage: React.FC<{
                   <CardHeader title={date}></CardHeader>
                   <hr />
                   <CardContent>
-                    <p>
-                      {upcomingShipments[date].length
-                        ? null
-                        : 'No shipments arriving'}
-                    </p>
                     {upcomingShipments[date].length ? (
                       <DataGrid
-                        className={classes.data}
+                        className={classes.table}
                         rows={upcomingShipments[date]}
                         columns={COLUMNS}
                         pageSize={3}
                         autoHeight
                         disableSelectionOnClick
                       />
-                    ) : null}
+                    ) : (
+                      <p>No shipments arriving</p>
+                    )}
                   </CardContent>
                 </Card>
               </Grid>
