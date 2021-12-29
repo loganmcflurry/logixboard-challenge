@@ -62,22 +62,22 @@ const useStyles = makeStyles({
 });
 
 /**
- * Returns a list of MM/dd/yy date strings for a given number of upcoming days including today
+ * Returns a map of date strings to empty arrays for a given number of upcoming days (including today)
  * @param numDays number of days to fetch
- * @returns array of date strings in the format MM/dd/yy
+ * @returns map of key-value pairs where keys are MM/dd/yy strings and values are empty Shipment arrays
  */
-const getUpcomingDateStrings = (numDays: number): string[] => {
-  const dateStrings: string[] = [];
+const initializeDateMap = (numDays: number): { [key: string]: Shipment[] } => {
+  const dateMap: { [key: string]: Shipment[] } = {};
   const today = new Date();
 
   // for each upcoming day, create a new Date and add its date string to our list
   for (let i = 0; i < numDays; i++) {
     const date = new Date();
     date.setDate(today.getDate() + i);
-    dateStrings.push(format(date, 'MM/dd/yy'));
+    dateMap[format(date, 'MM/dd/yy')] = [];
   }
 
-  return dateStrings;
+  return dateMap;
 };
 
 /**
@@ -93,25 +93,19 @@ export const DashboardPage: React.FC<{
   switch (data.status) {
     case 'SUCCESS':
       // construct empty map of next x number of days
-      const upcomingDateStrings = getUpcomingDateStrings(NUM_DAYS_PREVIEW);
-      const upcomingShipments: { [key: string]: Shipment[] } = {};
-      for (const date of upcomingDateStrings) {
-        upcomingShipments[date] = [];
-      }
+      const upcomingShipments = initializeDateMap(NUM_DAYS_PREVIEW);
 
       // for each shipment, if its estimatedArrival is in our list of upcoming dates, add it to the corresponding map entry
-      data.shipments.map((shipment) => {
-        const dateIdx = upcomingDateStrings.indexOf(shipment.estimatedArrival);
-        if (dateIdx > -1) {
-          upcomingShipments[upcomingDateStrings[dateIdx]].push(shipment);
+      data.shipments.forEach((shipment) => {
+        if (upcomingShipments[shipment.estimatedArrival]) {
+          upcomingShipments[shipment.estimatedArrival].push(shipment);
         }
-        return upcomingDateStrings[dateIdx];
       });
 
       // render
       component = (
         <Grid container spacing={3} className={classes.grid}>
-          {upcomingDateStrings
+          {Object.keys(upcomingShipments)
             .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
             .map((date) => (
               <Grid item xs={6} md={4} lg={3}>
